@@ -1,62 +1,32 @@
 package master_gin
 
 import (
+	"github.com/pkg/errors"
 	"log"
 	"net"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/acl-dev/master-go"
 	"github.com/gin-gonic/gin"
 )
 
 var (
 	g sync.WaitGroup	// Used to wait for service to stop.
-	Alone bool
 )
 
-func Init(addrs string) ([]*gin.Engine, error) {
-	master.Prepare()
-	Alone = master.Alone
+type GinService struct {
+	Alone bool
+	Listeners []net.Listener
+	Engines []*gin.Engine
 }
 
-func AloneStart(addrs string) ([]*gin.Engine, error) {
-	if len(addrs) == 0 {
-		log.Println("Addrs empty")
-		return nil, errors.New("No listen addresses")
+func (service *GinService) Run()  {
+	g.Add(len(service.Listeners))
+	for i := 0; i < len(service.Engines); i++ {
+		startServer(service.Listeners[i], service.Engines[i])
 	}
 
-	return ginServiceStart(addrs)
-}
-
-func DaemonStart() ([]*gin.Engine, error) {
-	return ginServiceStart("")
-}
-
-func Wait()  {
 	g.Wait()
-}
-
-func ginServiceStart(addrs string) ([]*gin.Engine, error) {
-	var listeners []net.Listener
-	var err error
-
-	listeners, err = master.ServiceInit(addrs, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	g.Add(len(listeners))
-
-	var engines []*gin.Engine
-
-	for _, ln := range listeners {
-		engine := gin.Default()
-		engines = append(engines, engine)
-		startServer(ln, engine)
-	}
-
-	return engines, nil
 }
 
 func startServer(listener net.Listener, engine *gin.Engine)  {
@@ -65,4 +35,30 @@ func startServer(listener net.Listener, engine *gin.Engine)  {
 
 		engine.RunListener(listener)
 	}()
+}
+
+func Init(addrs string) (*GinService, error) {
+	master.Prepare()
+
+	if master.Alone && len(addrs) == 0 {
+		log.Println("Listening addresses shouldn't be empty in running alone mode!")
+		return nil, errors.New("Listening addresses shouldn't be empty in alone mode")
+	}
+
+	if !master.Alone {
+		addrs = ""
+	}
+
+	listeners, err := master.ServiceInit(addrs, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var engines []*gin.Engine
+	for i := 0; i < len(listeners); i++ {
+		engine := gin.Default()
+		engines = append(engines, engine)
+	}
+	service := &GinService{ Alone: master.Alone, Listeners: listeners, Engines: engines }
+	return service, nil
 }
