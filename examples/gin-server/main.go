@@ -22,7 +22,7 @@ var (
 		"debug",
 		false,
 		"If running gin server in debug mode",
-		)
+	)
 )
 
 func main()  {
