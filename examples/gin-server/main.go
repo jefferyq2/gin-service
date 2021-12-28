@@ -8,12 +8,7 @@ import (
 )
 
 var (
-	filePath = flag.String(
-		"c",
-		"gin-server.cf",
-		"configure file",
-	)
-	addrs = flag.String(
+	addresses = flag.String(
 		"listen",
 		"127.0.0.1:8088",
 		"listen addresses in alone mode",
@@ -32,7 +27,7 @@ func main()  {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	service, err := master_gin.Init(*addrs)
+	service, err := master_gin.Init(*addresses, onStop)
 	if err != nil {
 		fmt.Println("Init master gin service failed")
 		return
@@ -49,4 +44,8 @@ func setupRoute(engines []*gin.Engine)  {
 			context.String(200, "hello world!\r\n")
 		})
 	}
+}
+
+func onStop(bool) {
+	fmt.Println("The process stopped!")
 }

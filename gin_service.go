@@ -20,6 +20,7 @@ type GinService struct {
 	Engines []*gin.Engine
 }
 
+// Run begin to start all the listening servers after Init() called.
 func (service *GinService) Run()  {
 	g.Add(len(service.Listeners))
 	for i := 0; i < len(service.Engines); i++ {
@@ -33,23 +34,27 @@ func startServer(listener net.Listener, engine *gin.Engine)  {
 	go func() {
 		defer g.Done()
 
-		engine.RunListener(listener)
+		_ = engine.RunListener(listener)
 	}()
 }
 
-func Init(addrs string) (*GinService, error) {
+// Init Create the gin service when starting in alone or daemon mode;
+// The addresses must not be empty in alone mode, and will be ignored in daemon mode,
+// the addresses' format lookup like "127.0.0.1:8080;127.0.0.1:8081;127.0.0.1:8082";
+// The stopHandler is the callback when the process is exiting.
+func Init(addresses string, stopHandler func(bool)) (*GinService, error) {
 	master.Prepare()
 
-	if master.Alone && len(addrs) == 0 {
+	if master.Alone && len(addresses) == 0 {
 		log.Println("Listening addresses shouldn't be empty in running alone mode!")
 		return nil, errors.New("Listening addresses shouldn't be empty in alone mode")
 	}
 
 	if !master.Alone {
-		addrs = ""
+		addresses = ""
 	}
 
-	listeners, err := master.ServiceInit(addrs, nil)
+	listeners, err := master.ServiceInit(addresses, stopHandler)
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +64,10 @@ func Init(addrs string) (*GinService, error) {
 		engine := gin.Default()
 		engines = append(engines, engine)
 	}
-	service := &GinService{ Alone: master.Alone, Listeners: listeners, Engines: engines }
+	service := &GinService{
+		Alone: master.Alone,
+		Listeners: listeners,
+		Engines: engines,
+	}
 	return service, nil
 }
