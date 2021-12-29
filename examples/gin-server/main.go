@@ -29,7 +29,7 @@ func main()  {
 
 	service, err := master_gin.Init(*addresses, onStop)
 	if err != nil {
-		fmt.Println("Init master gin service failed")
+		fmt.Println("Init master gin service failed:", err)
 		return
 	}
 
