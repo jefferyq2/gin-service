@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/acl-dev/master-gin"
+	"github.com/acl-dev/master-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +22,7 @@ var (
 )
 
 func main()  {
+	fmt.Println("master-go version:", master.Version)
 	flag.Parse()
 
 	if !*debugMode {
