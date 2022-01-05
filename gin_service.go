@@ -50,10 +50,6 @@ func Init(addresses string, stopHandler func(bool)) (*GinService, error) {
 		return nil, errors.New("Listening addresses shouldn't be empty in alone mode")
 	}
 
-	if !master.Alone {
-		addresses = ""
-	}
-
 	listeners, err := master.ServiceInit(addresses, stopHandler)
 	if err != nil {
 		return nil, err

@@ -29,6 +29,7 @@ func main()  {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
+	fmt.Println("addr:", *addresses)
 	service, err := master_gin.Init(*addresses, onStop)
 	if err != nil {
 		fmt.Println("Init master gin service failed:", err)
