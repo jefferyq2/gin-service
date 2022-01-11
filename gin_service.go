@@ -12,19 +12,24 @@ import (
 
 var (
 	g sync.WaitGroup	// Used to wait for service to stop.
+	Version = "0.9.2"
 )
+
+type GinServ struct {
+	Listener net.Listener
+	Engine *gin.Engine
+}
 
 type GinService struct {
 	Alone bool
-	Listeners []net.Listener
-	Engines []*gin.Engine
+	Servers []*GinServ
 }
 
 // Run begin to start all the listening servers after Init() called.
 func (service *GinService) Run()  {
-	g.Add(len(service.Listeners))
-	for i := 0; i < len(service.Engines); i++ {
-		startServer(service.Listeners[i], service.Engines[i])
+	g.Add(len(service.Servers))
+	for _, s := range service.Servers {
+		startServer(s.Listener, s.Engine)
 	}
 
 	g.Wait()
@@ -55,15 +60,13 @@ func Init(addresses string, stopHandler func(bool)) (*GinService, error) {
 		return nil, err
 	}
 
-	var engines []*gin.Engine
-	for i := 0; i < len(listeners); i++ {
+	var service GinService
+
+	for _, l := range listeners {
 		engine := gin.Default()
-		engines = append(engines, engine)
+		serv := &GinServ{ Listener: l, Engine: engine }
+		service.Servers = append(service.Servers, serv)
 	}
-	service := &GinService{
-		Alone: master.Alone,
-		Listeners: listeners,
-		Engines: engines,
-	}
-	return service, nil
+
+	return &service, nil
 }

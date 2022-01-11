@@ -6,6 +6,7 @@ import (
 	"github.com/acl-dev/master-gin"
 	"github.com/acl-dev/master-go"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 var (
@@ -23,6 +24,8 @@ var (
 
 func main()  {
 	fmt.Println("master-go version:", master.Version)
+	fmt.Println("mager-gin version:", master_gin.Version)
+
 	flag.Parse()
 
 	if !*debugMode {
@@ -36,16 +39,27 @@ func main()  {
 		return
 	}
 
-	setupRoute(service.Engines)
+	setRoute(*service)
 	fmt.Println("Listen and running ...")
 	service.Run()
 }
 
-func setupRoute(engines []*gin.Engine)  {
-	for _, e := range engines {
-		e.GET("/", func(context *gin.Context) {
+func ginWrap(f func(w http.ResponseWriter, r *http.Request)) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		f(context.Writer, context.Request)
+	}
+}
+
+func onTest(w http.ResponseWriter, _ *http.Request) {
+	_, _ = fmt.Fprintf(w, "test: Hello World!\r\n")
+}
+
+func setRoute(service master_gin.GinService) {
+	for _, s := range service.Servers {
+		s.Engine.GET("/", func(context *gin.Context) {
 			context.String(200, "hello world!\r\n")
 		})
+		s.Engine.GET("/test", ginWrap(onTest))
 	}
 }
 
