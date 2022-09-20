@@ -39,6 +39,10 @@ func main()  {
 		return
 	}
 
+	fmt.Printf("ServiceType=%s, test_src=%s, test_bool=%t\r\n",
+		master.ServiceType, master.AppConf.GetString("test_src"),
+		master.AppConf.GetBool("test_bool"))
+
 	setRoute(*service)
 	fmt.Println("Listen and running ...")
 	service.Run()
