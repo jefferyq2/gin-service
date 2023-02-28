@@ -13,7 +13,7 @@ import (
 
 var (
 	g sync.WaitGroup	// Used to wait for service to stop.
-	Version = "0.9.2"
+	Version = "1.0.0"
 )
 type AcceptFunc func(net.Conn)
 type CloseFunc func(net.Conn)
