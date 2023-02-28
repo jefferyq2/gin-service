@@ -7,7 +7,7 @@ service gin-server {
 #	for master_type = unix
 #	master_service = echo.sock
 #	for master_type = sock
-	master_service = |8887, |8888, |8889, gin-server.sock
+	master_service = |87, |88, |89, gin-server.sock
 
 #	服务监听为域套接口
 #	master_service = aio_echo.sock

@@ -153,18 +153,39 @@ go build -o gin-server
 ```
 
 最后运行 **`acl_master`** 服务框架中的管理工具来查看由 **`acl_master`** 管理的服务：
-```
+```shell
 #/opt/soft/acl-master/bin/master_ctl -a list
 ```
+
 结果显示如下：
 
 ```
 status  service                                         type    proc    owner   conf    
-200     |8887, |8888, |88889, gin-server.sock            4       2      root    /opt/soft/gin-server/conf/gin-server.cf
+200     |87, |88, |89, gin-server.sock            4       2      root    /opt/soft/gin-server/conf/gin-server.cf
 ```
 
 可以使用 `curl` 工具测试一下 gin-server 服务，如下：
 ```
 # curl http://127.0.0.1:8888/test
 test: hello world!
+```
+
+在上面由 master_ctl -a list 显示的管理内容中可以看到 gin-server 的运行身份为 `root`，需要想要 gin-server 运行在 `nobody` 身份下，则需要以下修改：
+- 将 gin-server 目录修改为 nobody 属主：`chown -R nobody:nobody /opt/soft/gin-server`；
+- 修改 `/opt/soft/gin-server/conf/gin-server.cf` 配置文件，修改其中的配置项：
+  - master_args = -u
+  - master_owner = nobody
+- 重新启动 gin-server 服务
+  - /opt/soft/gin-server/bin/stop.sh 
+  - /opt/soft/gin-server/bin/start.sh 
+
+然后再运行
+```shell
+#/opt/soft/acl-master/bin/master_ctl -a list
+```
+结果显示如下：
+
+```
+status  service                                         type    proc    owner   conf    
+200     |87, |88, |89, gin-server.sock            4       2      nobody    /opt/soft/gin-server/conf/gin-server.cf
 ```
