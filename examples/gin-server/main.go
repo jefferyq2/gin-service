@@ -6,6 +6,7 @@ import (
 	"github.com/acl-dev/master-gin"
 	"github.com/acl-dev/master-go"
 	"github.com/gin-gonic/gin"
+	"net"
 	"net/http"
 )
 
@@ -37,6 +38,13 @@ func main()  {
 	if err != nil {
 		fmt.Println("Init master gin service failed:", err)
 		return
+	}
+
+	service.AcceptHandler = func(conn net.Conn) {
+		fmt.Printf("Connect from %s\r\n", conn.RemoteAddr())
+	}
+	service.CloseHandler = func(conn net.Conn) {
+		fmt.Printf("Disconnect from %s\r\n", conn.RemoteAddr())
 	}
 
 	fmt.Printf("ServiceType=%s, test_src=%s, test_bool=%t\r\n",

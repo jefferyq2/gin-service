@@ -1,7 +1,6 @@
 package master_gin
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"log"
 	"net"
@@ -60,9 +59,14 @@ func (service *GinService) startServer(listener net.Listener, engine *gin.Engine
 					break
 				case http.StateIdle:
 					break
-				case http.StateClosed:
 				case http.StateHijacked:
-					master.ConnCountDec();
+					master.ConnCountDec()
+					if service.CloseHandler != nil {
+						service.CloseHandler(conn)
+					}
+					break
+				case http.StateClosed:
+					master.ConnCountDec()
 					if service.CloseHandler != nil {
 						service.CloseHandler(conn)
 					}
@@ -70,7 +74,6 @@ func (service *GinService) startServer(listener net.Listener, engine *gin.Engine
 				default:
 					break
 				}
-				fmt.Printf("Connection status=%d from %sr\r\n", int(state), conn.RemoteAddr())
 			},
 		}
 		server.Serve(listener)
