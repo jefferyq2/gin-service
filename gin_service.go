@@ -1,9 +1,11 @@
 package master_gin
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"log"
 	"net"
+	"net/http"
 	"sync"
 
 	"github.com/acl-dev/master-go"
@@ -14,6 +16,8 @@ var (
 	g sync.WaitGroup	// Used to wait for service to stop.
 	Version = "0.9.2"
 )
+type AcceptFunc func(net.Conn)
+type CloseFunc func(net.Conn)
 
 type GinServ struct {
 	Listener net.Listener
@@ -23,23 +27,53 @@ type GinServ struct {
 type GinService struct {
 	Alone bool
 	Servers []*GinServ
+	AcceptHandler AcceptFunc
+	CloseHandler  CloseFunc
 }
 
 // Run begin to start all the listening servers after Init() called.
 func (service *GinService) Run()  {
 	g.Add(len(service.Servers))
 	for _, s := range service.Servers {
-		startServer(s.Listener, s.Engine)
+		service.startServer(s.Listener, s.Engine)
 	}
 
 	g.Wait()
 }
 
-func startServer(listener net.Listener, engine *gin.Engine)  {
+func (service *GinService) startServer(listener net.Listener, engine *gin.Engine)  {
 	go func() {
 		defer g.Done()
 
-		_ = engine.RunListener(listener)
+		//_ = engine.RunListener(listener)
+		server := &http.Server {
+			Handler: engine,
+			ConnState: func(conn net.Conn, state http.ConnState) {
+				switch state {
+				case http.StateNew:
+					master.ConnCountInc()
+					if service.AcceptHandler != nil {
+						service.AcceptHandler(conn)
+					}
+					break
+				case http.StateActive:
+					break
+				case http.StateIdle:
+					break
+				case http.StateClosed:
+				case http.StateHijacked:
+					master.ConnCountDec();
+					if service.CloseHandler != nil {
+						service.CloseHandler(conn)
+					}
+					break
+				default:
+					break
+				}
+				fmt.Printf("Connection status=%d from %sr\r\n", int(state), conn.RemoteAddr())
+			},
+		}
+		server.Serve(listener)
 	}()
 }
 
