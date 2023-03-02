@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/acl-dev/master-gin"
-	"github.com/acl-dev/master-go"
+	"github.com/acl-dev/gin-service"
+	"github.com/acl-dev/go-service"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net"
