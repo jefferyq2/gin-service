@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 )
 
 var (
@@ -35,17 +36,17 @@ func main() {
 	}
 
 	fmt.Println("addr:", *addresses)
-	service, err := master_gin.Init(*addresses, onStop)
+	service, err := master_gin.Init(*addresses)
 	if err != nil {
-		fmt.Println("Init master gin service failed:", err)
+		log.Println("Init master gin service failed:", err)
 		return
 	}
 
 	service.AcceptHandler = func(conn net.Conn) {
-		fmt.Printf("Connect from %s\r\n", conn.RemoteAddr())
+		log.Printf("Connect from %s\r\n", conn.RemoteAddr())
 	}
 	service.CloseHandler = func(conn net.Conn) {
-		fmt.Printf("Disconnect from %s\r\n", conn.RemoteAddr())
+		log.Printf("Disconnect from %s\r\n", conn.RemoteAddr())
 	}
 
 	fmt.Printf("ServiceType=%s, test_src=%s, test_bool=%t\r\n",
@@ -53,8 +54,9 @@ func main() {
 		master.AppConf.GetBool("test_bool"))
 
 	setRoute(*service)
-	log.Println("Listen and running ...")
+	log.Printf("pid=%d, start gin service...\r\n", os.Getpid())
 	service.Run()
+	log.Printf("pid=%d, gin service stopped!\r\n", os.Getpid())
 }
 
 func ginWrap(f func(w http.ResponseWriter, r *http.Request)) gin.HandlerFunc {
@@ -74,8 +76,4 @@ func setRoute(service master_gin.GinService) {
 		})
 		s.Engine.GET("/test", ginWrap(onTest))
 	}
-}
-
-func onStop(bool) {
-	log.Println("The process stopped!")
 }
