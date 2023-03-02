@@ -1,11 +1,11 @@
-# master-gin
+# gin-service
 
 基于 gin 开发的服务器模板，可以与 acl_master 服务管理框架深度集成。
 
 ## 一、安装
 
 ```shell
-go install github.com/acl-dev/master-gin@v1.0.0
+go install github.com/acl-dev/gin-service@v1.0.1
 ```
 
 ## 二、使用
@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"github.com/acl-dev/master-gin"
-	"github.com/acl-dev/master-go"
+	"github.com/acl-dev/gin-service"
+	"github.com/acl-dev/go-service"
 	"github.com/gin-gonic/gin"
 )
 
@@ -107,13 +107,13 @@ func onStop(bool) {
 
 在这个例子中，首先需要导入以下三个模块：
 ```go
-"github.com/acl-dev/master-gin"
-"github.com/acl-dev/master-go"
+"github.com/acl-dev/gin-service"
+"github.com/acl-dev/go-service"
 "github.com/gin-gonic/gin"
 ```
 其中：
-- `master-go` 模块是相对独立（没有第三方依赖）的服务模板，可以与 `acl_master` 服务管理框架无缝整合；
-- `master-gin` 封装了 `master-go` 及 `gin` 框架，可以达到既方便使用 `gin` 框架，又可以与 `acl_master` 整合的目的；
+- `go-service` 模块是相对独立（没有第三方依赖）的服务模板，可以与 `acl_master` 服务管理框架无缝整合；
+- `gin-service` 封装了 `go-service` 及 `gin` 框架，可以达到既方便使用 `gin` 框架，又可以与 `acl_master` 整合的目的；
 - `gin` 为功能强大的 Web 服务框架。
 
 编译：
@@ -143,11 +143,11 @@ go build -o gin-server
 当 RPM 安装后 acl_master 服务管理程序会自动启动。
 
 #### 2.2.2 部署 gin-server 服务程序至 acl_master 框架下
-首先下载 master-go 软件包并编译其中的服务示例，然后安装这些服务程序：
+首先下载 go-service 软件包并编译其中的服务示例，然后安装这些服务程序：
 
 ```
-#go install github.com/acl-dev/master-gin@v1.0.0
-#cd $GOPATH/src/github.com/acl-dev/master-gin/examples/
+#go install github.com/acl-dev/gin-service@v1.0.0
+#cd $GOPATH/src/github.com/acl-dev/gin-service/examples/
 #(cd gin-server; go get; go build; ./setup.sh /opt/soft/gin-server)
 #/opt/soft/gin-server/bin/start.sh
 ```
