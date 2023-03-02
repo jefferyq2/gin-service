@@ -6,6 +6,7 @@ import (
 	"github.com/acl-dev/master-gin"
 	"github.com/acl-dev/master-go"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net"
 	"net/http"
 )
@@ -23,7 +24,7 @@ var (
 	)
 )
 
-func main()  {
+func main() {
 	fmt.Println("master-go version:", master.Version)
 	fmt.Println("mager-gin version:", master_gin.Version)
 
@@ -52,7 +53,7 @@ func main()  {
 		master.AppConf.GetBool("test_bool"))
 
 	setRoute(*service)
-	fmt.Println("Listen and running ...")
+	log.Println("Listen and running ...")
 	service.Run()
 }
 
@@ -76,5 +77,5 @@ func setRoute(service master_gin.GinService) {
 }
 
 func onStop(bool) {
-	fmt.Println("The process stopped!")
+	log.Println("The process stopped!")
 }
