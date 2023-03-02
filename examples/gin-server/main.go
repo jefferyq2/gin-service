@@ -26,8 +26,8 @@ var (
 )
 
 func main() {
-	fmt.Println("master-go version:", master.Version)
-	fmt.Println("mager-gin version:", master_gin.Version)
+	fmt.Println("go-service version:", master.Version)
+	fmt.Println("gin-service version:", master_gin.Version)
 
 	flag.Parse()
 
