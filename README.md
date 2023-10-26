@@ -1,4 +1,4 @@
-# gin-service
+ gin-service
 
 基于 gin 开发的服务器模板，可以与 acl_master 服务管理框架深度集成。
 
@@ -90,13 +90,21 @@ func onTest(w http.ResponseWriter, _ *http.Request) {
 
 // setRoute 设置 HTTP 服务路由。
 func setRoute(service master_gin.GinService) {
+	service.Engine.GET("/", func(context *gin.Context) {
+		context.String(200, "hello world!\r\n")
+	})
+	service.Engine.GET("/test", ginWrap(onTest))
+
+	// 也可以采用以下方法设置 HTTP 服务路由
 	// 针对每一个 HTTP 服务监听对象设置 HTTP 服务路由。
+	/*
 	for _, s := range service.Servers {
 		s.Engine.GET("/", func(context *gin.Context) {
 			context.String(200, "hello world!\r\n")
 		})
 		s.Engine.GET("/test", ginWrap(onTest))
 	}
+	*/
 }
 
 // onStop 进程退出时的回调函数。
