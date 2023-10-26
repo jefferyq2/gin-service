@@ -118,3 +118,27 @@ func Init(addresses string) (*GinService, error) {
 
 	return &service, nil
 }
+
+func (service *GinService) GET(urlPath string, handler func(*gin.Context)) {
+	for _, s := range service.Servers {
+		s.Engine.GET(urlPath, handler)
+	}
+}
+
+func (service *GinService) POST(urlPath string, handler func(*gin.Context)) {
+	for _, s := range service.Servers {
+		s.Engine.POST(urlPath, handler)
+	}
+}
+
+func (service *GinService) HEAD(urlPath string, handler func(*gin.Context)) {
+	for _, s := range service.Servers {
+		s.Engine.HEAD(urlPath, handler)
+	}
+}
+
+func (service *GinService) NoRoute(handler func(*gin.Context)) {
+	for _, s := range service.Servers {
+		s.Engine.NoRoute(handler)
+	}
+}

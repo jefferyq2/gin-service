@@ -70,10 +70,21 @@ func onTest(w http.ResponseWriter, _ *http.Request) {
 }
 
 func setRoute(service master_gin.GinService) {
-	for _, s := range service.Servers {
-		s.Engine.GET("/", func(context *gin.Context) {
-			context.String(200, "hello world!\r\n")
-		})
-		s.Engine.GET("/test", ginWrap(onTest))
-	}
+	/*
+		for _, s := range service.Servers {
+			s.Engine.GET("/", func(context *gin.Context) {
+				context.String(200, "hello world!\r\n")
+			})
+			s.Engine.GET("/test", ginWrap(onTest))
+		}
+	*/
+	service.GET("/", func(context *gin.Context) {
+		context.String(200, "hello world!\r\n")
+	})
+
+	service.GET("/test", ginWrap(onTest))
+
+	service.NoRoute(func(context *gin.Context) {
+		context.String(400, "Invalid request url!\r\n")
+	})
 }
